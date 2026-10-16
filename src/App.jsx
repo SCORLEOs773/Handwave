@@ -33,10 +33,15 @@ export default function App() {
         {phase === "error" ? (
           <p role="alert">{error}</p>
         ) : (
-          <p>
-            Control a 3D world with your bare hands. Everything runs in your
-            browser, and your camera never leaves your device.
-          </p>
+          <>
+            <p>
+              Cast spells with your bare hands. Everything runs in your browser,
+              and your camera never leaves your device.
+            </p>
+            <p className="tip">
+              Stand back so both hands are in view, with some light on them.
+            </p>
+          </>
         )}
         <button className="btn" onClick={() => setPhase("running")}>
           {phase === "error" ? "Try again" : "Start"}

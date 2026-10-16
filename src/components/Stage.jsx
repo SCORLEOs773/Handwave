@@ -2,11 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { createStage } from "../engine/stage.js";
 import { createHandTracker, startCamera } from "../engine/tracking.js";
 
+const SPELLS = [
+  { gesture: "point", icon: "☝️", name: "Wisp writing" },
+  { gesture: "open", icon: "🖐️", name: "Witch fire" },
+  { gesture: "horns", icon: "🤘", name: "Summon bats" },
+];
+
 export default function Stage({ onError }) {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
+  const activeKey = useRef("");
   const [loading, setLoading] = useState(true);
   const [fps, setFps] = useState(0);
+  const [active, setActive] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +41,16 @@ export default function Stage({ onError }) {
         video.currentTime !== lastVideoTime
       ) {
         lastVideoTime = video.currentTime;
-        stage.update(tracker.detectForVideo(video, performance.now()));
+        const gestures = stage.update(
+          tracker.detectForVideo(video, performance.now()),
+        );
+
+        // Only touch React state when the gestures actually change
+        const key = gestures.join(",");
+        if (key !== activeKey.current) {
+          activeKey.current = key;
+          setActive(gestures);
+        }
       }
       stage.render();
 
@@ -82,12 +99,27 @@ export default function Stage({ onError }) {
   return (
     <>
       <canvas ref={canvasRef} className="canvas" />
+      <div className="vignette" />
       <video ref={videoRef} className="preview" playsInline muted />
       <div className="hud">
         <strong>Handwave</strong>
-        <span>{fps} fps</span>
+        <span>
+          {active.length ? `${active.join(" + ")} · ` : ""}
+          {fps} fps
+        </span>
       </div>
       {loading && <div className="status">Loading hand tracking...</div>}
+
+      <ul className="spells">
+        {SPELLS.map((s) => (
+          <li
+            key={s.gesture}
+            className={active.includes(s.gesture) ? "on" : ""}
+          >
+            <span aria-hidden="true">{s.icon}</span> {s.name}
+          </li>
+        ))}
+      </ul>
       <p className="note">
         Your camera stays on your device. Nothing is recorded or uploaded.
       </p>
