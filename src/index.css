@@ -195,3 +195,29 @@ body {
     transition: none;
   }
 }
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sound {
+  pointer-events: auto;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(13, 7, 22, 0.6);
+  color: var(--text);
+  cursor: pointer;
+}
+.sound[aria-pressed="false"] {
+  color: var(--muted);
+}
+@media (max-width: 900px) {
+  .spells li {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+}

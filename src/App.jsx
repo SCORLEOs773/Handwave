@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Stage from "./components/Stage.jsx";
+import { createAudio } from "./engine/audio.js";
 
 function friendlyError(err) {
   switch (err?.name) {
@@ -17,14 +18,32 @@ function friendlyError(err) {
 export default function App() {
   const [phase, setPhase] = useState("intro"); // intro | running | error
   const [error, setError] = useState("");
+  const [audio, setAudio] = useState(null);
 
-  function handleError(err) {
+  // Stops the music when the sound engine is replaced or the page closes
+  useEffect(() => () => audio?.dispose(), [audio]);
+
+  const handleError = useCallback((err) => {
     console.error(err);
     setError(friendlyError(err));
+    setAudio(null);
     setPhase("error");
+  }, []);
+
+  function start() {
+    let a = null;
+    try {
+      a = createAudio();
+      a.start();
+    } catch (err) {
+      console.error("Audio unavailable", err);
+      a = null;
+    }
+    setAudio(a);
+    setPhase("running");
   }
 
-  if (phase === "running") return <Stage onError={handleError} />;
+  if (phase === "running") return <Stage onError={handleError} audio={audio} />;
 
   return (
     <main className="screen">
@@ -40,11 +59,12 @@ export default function App() {
             </p>
             <p className="tip">
               Stand back so both hands are in view, with some light on them.
+              Turn your sound on.
             </p>
           </>
         )}
-        <button className="btn" onClick={() => setPhase("running")}>
-          {phase === "error" ? "Try again" : "Start"}
+        <button className="btn" onClick={start}>
+          {phase === "error" ? "Try again" : "Enter"}
         </button>
       </div>
     </main>

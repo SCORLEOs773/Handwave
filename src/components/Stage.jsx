@@ -6,15 +6,18 @@ const SPELLS = [
   { gesture: "point", icon: "☝️", name: "Wisp writing" },
   { gesture: "open", icon: "🖐️", name: "Witch fire" },
   { gesture: "horns", icon: "🤘", name: "Summon bats" },
+  { gesture: "fist", icon: "✊", name: "Fireball (hold, then release)" },
+  { gesture: "storm", icon: "🙌", name: "Storm (two palms)" },
 ];
 
-export default function Stage({ onError }) {
+export default function Stage({ onError, audio }) {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const activeKey = useRef("");
   const [loading, setLoading] = useState(true);
   const [fps, setFps] = useState(0);
   const [active, setActive] = useState([]);
+  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,7 +25,7 @@ export default function Stage({ onError }) {
     let tracker = null;
     let stream = null;
 
-    const stage = createStage(canvasRef.current);
+    const stage = createStage(canvasRef.current, audio);
     const onResize = () => stage.resize();
     window.addEventListener("resize", onResize);
 
@@ -41,9 +44,8 @@ export default function Stage({ onError }) {
         video.currentTime !== lastVideoTime
       ) {
         lastVideoTime = video.currentTime;
-        const gestures = stage.update(
-          tracker.detectForVideo(video, performance.now()),
-        );
+        const gestures =
+          stage.update(tracker.detectForVideo(video, performance.now())) ?? [];
 
         // Only touch React state when the gestures actually change
         const key = gestures.join(",");
@@ -94,7 +96,13 @@ export default function Stage({ onError }) {
       stream?.getTracks().forEach((track) => track.stop());
       stage.dispose();
     };
-  }, [onError]);
+  }, [onError, audio]);
+
+  function toggleSound() {
+    const next = !muted;
+    setMuted(next);
+    audio?.setMuted(next);
+  }
 
   return (
     <>
@@ -103,10 +111,21 @@ export default function Stage({ onError }) {
       <video ref={videoRef} className="preview" playsInline muted />
       <div className="hud">
         <strong>Handwave</strong>
-        <span>
-          {active.length ? `${active.join(" + ")} · ` : ""}
-          {fps} fps
-        </span>
+        <div className="hud-right">
+          <span>
+            {active.length ? `${active.join(" + ")} · ` : ""}
+            {fps} fps
+          </span>
+          {audio && (
+            <button
+              className="sound"
+              onClick={toggleSound}
+              aria-pressed={!muted}
+            >
+              {muted ? "Sound off" : "Sound on"}
+            </button>
+          )}
+        </div>
       </div>
       {loading && <div className="status">Loading hand tracking...</div>}
 
