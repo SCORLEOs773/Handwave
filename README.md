@@ -7,7 +7,7 @@
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Tracking-0097A7)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-**Live demo:** [YOUR-SITE.pages.dev](https://YOUR-SITE.pages.dev) (replace with your deployed URL)
+**Live demo:** [Handwave](https://handwave.mykeyman777.workers.dev/)
 
 Handwave turns your webcam into a spellbook. Hold up your hands and they appear as glowing 3D skeletons under a moonlit Halloween sky. Point, open your palm, throw the horns, make a fist or bring your hands together to cast spells, each with its own visuals and sound, over a haunting background soundtrack.
 
